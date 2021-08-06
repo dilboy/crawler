@@ -19,8 +19,11 @@ class ExampleSpider(scrapy.Spider):
 
     def parse(self, response):
         item = DouBanBookItem()
+        # 1. 通过xpath路径从dom树抽取对应内容
         books = response.xpath('//*[@id="content"]/div/div[1]/div/table')
+        # 打印抽取的内容
         print(books)
+        # 对象转换，把dom树book对象转换成item变量
         for book in books:
             item["ranking"] = self.count
             self.count += 1
@@ -38,7 +41,9 @@ class ExampleSpider(scrapy.Spider):
                 item['quote'] = ""
             yield item
 
+        # 翻页
         next_page_url = response.xpath('//span[@class="next"]/a/@href').extract()
         if next_page_url:
             next_page_url = next_page_url[0]
+            # 递归请求到下一个分页
             yield Request(next_page_url, headers=self.headers)
